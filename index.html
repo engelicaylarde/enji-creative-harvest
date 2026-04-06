@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Enji's Creative Warm-up</title>
+    <title>NG's Creative Tools</title>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -42,36 +42,45 @@
         }
         button {
             margin-top: 20px;
-            padding: 10px 25px;
+            padding: 12px 30px;
             background-color: #ff69b4;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 0 #d14d8d;
         }
-        .result { margin-top: 15px; font-size: 1.2rem; color: gold; font-weight: bold; min-height: 1.5em; }
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #d14d8d;
+        }
+        .result { 
+            margin-top: 15px; 
+            font-size: 1.3rem; 
+            color: gold; 
+            font-weight: bold; 
+            min-height: 1.6em; 
+        }
         
-        /* Color Wheel Specific Styling */
+        /* The Rainbow Gradient for the Color Wheel */
         #color-wheel {
             background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+        }
+
+        .back-link {
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
     <div class="roleta-section">
-        <h2>1. Task Roleta</h2>
-        <div class="pointer"></div>
-        <div id="task-wheel" class="wheel-container">
-            <div style="position:absolute; width:100%; height:100%; background: repeating-conic-gradient(#555 0 90deg, #666 90deg 180deg);"></div>
-        </div>
-        <button onclick="spin('task')">SPIN TASKS</button>
-        <div id="task-result" class="result"></div>
-    </div>
-
-    <div class="roleta-section">
-        <h2>2. Shape Roleta</h2>
+        <h2>1. Shape Roleta</h2>
         <div class="pointer"></div>
         <div id="shape-wheel" class="wheel-container">
             <div style="position:absolute; width:100%; height:100%; background: repeating-conic-gradient(#444 0 20deg, #333 20deg 40deg);"></div>
@@ -81,32 +90,50 @@
     </div>
 
     <div class="roleta-section">
-        <h2>3. Color Roleta</h2>
+        <h2>2. Color Roleta</h2>
         <div class="pointer"></div>
         <div id="color-wheel" class="wheel-container"></div>
         <button onclick="spin('color')">SPIN COLORS</button>
         <div id="color-result" class="result"></div>
     </div>
 
-    <p><a href="../index.html" style="color: gray; text-decoration: none;">← Back to Studio</a></p>
+    <a href="../index.html" class="back-link">← Back to NG's Studio</a>
 
     <script>
-        const data = {
-            task: ["Rest", "Pixels", "Lifts", "Walk"],
-            shape: ["Triangle", "Square", "Rectangle", "Circle", "Oval", "Rhombus", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Nonagon", "Decagon", "Parallelogram", "Heart", "Star", "Crescent", "Kite"]
-        };
+        // Your list of 18 specific shapes
+        const shapesList = [
+            "Triangle", "Square", "Rectangle", "Circle", "Oval", 
+            "Rhombus", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", 
+            "Octagon", "Nonagon", "Decagon", "Parallelogram", "Heart", 
+            "Star", "Crescent", "Kite"
+        ];
 
         function spin(type) {
             const wheel = document.getElementById(`${type}-wheel`);
-            const result = document.getElementById(`${type}-result`);
-            const randomDegree = Math.floor(Math.random() * 360) + 1440; // 4 full spins
+            const resultDisplay = document.getElementById(`${type}-result`);
+            
+            // Random degree: 4 full spins + random offset
+            const randomDegree = Math.floor(Math.random() * 360) + 1440; 
             
             wheel.style.transform = `rotate(${randomDegree}deg)`;
-            result.innerText = "Spinning...";
+            resultDisplay.innerText = "Spinning...";
 
             setTimeout(() => {
-                const actualDegree = 360 - (randomDegree % 360);
+                // Calculation to find which slice is at the top (0 degrees)
+                const actualDegree = (360 - (randomDegree % 360)) % 360;
                 
                 if (type === 'color') {
-                    // Generate a random Hex color
-                    const randomHex = '#'
+                    // Generates a random valid Hex code
+                    const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase();
+                    resultDisplay.innerHTML = `Color: <span style="color:${randomHex}">${randomHex}</span>`;
+                } else {
+                    // Logic for the 18 Shapes
+                    const sliceSize = 360 / shapesList.length; // 20 degrees per slice
+                    const index = Math.floor(actualDegree / sliceSize);
+                    resultDisplay.innerText = `Result: ${shapesList[index]}`;
+                }
+            }, 4000); // Matches the 4s transition in CSS
+        }
+    </script>
+</body>
+</html>
