@@ -4,103 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>NG's Creative Tools</title>
+    <title>Creative Studio | Roleta</title>
     <style>
+        :root {
+            --bg-color: #f9f7f2; /* Soft linen white */
+            --accent: #d4a373;   /* Muted gold/sand */
+            --text-main: #4a4a4a; /* Soft charcoal */
+            --wheel-border: #eaddca;
+        }
+
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #2c2c2c;
-            color: #ff69b4;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 50px 0;
+            padding: 80px 20px;
             margin: 0;
+            letter-spacing: 0.05em;
         }
+
+        h1 {
+            font-weight: 300;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            margin-bottom: 60px;
+            color: var(--accent);
+        }
+
         .roleta-section {
-            margin-bottom: 80px;
+            margin-bottom: 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 400px;
         }
+
+        h2 {
+            font-weight: 400;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* Minimalist Wheel Design */
         .wheel-container {
             position: relative;
-            width: 300px;
-            height: 300px;
-            border: 5px solid #ff69b4;
+            width: 280px;
+            height: 280px;
+            border: 1px solid var(--wheel-border);
             border-radius: 50%;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
             overflow: hidden;
-            transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);
-            background: #444;
         }
+
+        /* The delicate pointer */
         .pointer {
-            width: 0; height: 0; 
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid gold;
+            width: 1px;
+            height: 40px;
+            background-color: var(--accent);
             z-index: 10;
-            margin-bottom: 10px;
+            margin-bottom: -10px; /* Overlaps slightly for style */
+            position: relative;
         }
+
+        /* Subtle slices */
+        .shape-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-conic-gradient(
+                #ffffff 0 20deg, 
+                #fafafa 20deg 40deg
+            );
+            opacity: 0.5;
+        }
+
         button {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background-color: #ff69b4;
-            color: white;
-            border: none;
-            border-radius: 8px;
+            margin-top: 40px;
+            padding: 12px 40px;
+            background: none;
+            color: var(--accent);
+            border: 1px solid var(--accent);
             cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            box-shadow: 0 4px 0 #d14d8d;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
         }
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #d14d8d;
+
+        button:hover {
+            background-color: var(--accent);
+            color: white;
         }
+
         .result { 
-            margin-top: 15px; 
-            font-size: 1.3rem; 
-            color: gold; 
-            font-weight: bold; 
-            min-height: 1.6em; 
+            margin-top: 25px; 
+            font-size: 1rem; 
+            font-weight: 300;
+            min-height: 1.5em; 
+            font-style: italic;
         }
-        
-        /* The Rainbow Gradient for the Color Wheel */
+
         #color-wheel {
-            background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+            /* Muted rainbow for aesthetic feel */
+            background: conic-gradient(
+                from 180deg,
+                #ffadad, #ffd6a5, #fdffb6, #caffbf, #9bf6ff, #a0c4ff, #bdb2ff, #ffc6ff, #ffadad
+            );
+            opacity: 0.8;
         }
 
         .back-link {
-            margin-top: 20px;
-            color: #888;
+            margin-top: 40px;
+            color: #ccc;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
         }
+        
+        .back-link:hover { color: var(--accent); }
     </style>
 </head>
 <body>
 
+    <h1>Creative Harvest Studio</h1>
+
     <div class="roleta-section">
-        <h2>1. Shape Roleta</h2>
+        <h2>I. Geometric Form</h2>
         <div class="pointer"></div>
         <div id="shape-wheel" class="wheel-container">
-            <div style="position:absolute; width:100%; height:100%; background: repeating-conic-gradient(#444 0 20deg, #333 20deg 40deg);"></div>
+            <div class="shape-overlay"></div>
         </div>
-        <button onclick="spin('shape')">SPIN SHAPES</button>
+        <button onclick="spin('shape')">Explore Shape</button>
         <div id="shape-result" class="result"></div>
     </div>
 
     <div class="roleta-section">
-        <h2>2. Color Roleta</h2>
+        <h2>II. Color Essence</h2>
         <div class="pointer"></div>
         <div id="color-wheel" class="wheel-container"></div>
-        <button onclick="spin('color')">SPIN COLORS</button>
+        <button onclick="spin('color')">Generate Hue</button>
         <div id="color-result" class="result"></div>
     </div>
 
-    <a href="../index.html" class="back-link">← Back to NG's Studio</a>
+    <a href="../index.html" class="back-link">Return to Index</a>
 
     <script>
-        // Your list of 18 specific shapes
         const shapesList = [
             "Triangle", "Square", "Rectangle", "Circle", "Oval", 
             "Rhombus", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", 
@@ -112,27 +167,24 @@
             const wheel = document.getElementById(`${type}-wheel`);
             const resultDisplay = document.getElementById(`${type}-result`);
             
-            // Random degree: 4 full spins + random offset
-            const randomDegree = Math.floor(Math.random() * 360) + 1440; 
+            // Slower, more elegant spin (5 full rotations)
+            const randomDegree = Math.floor(Math.random() * 360) + 1800; 
             
             wheel.style.transform = `rotate(${randomDegree}deg)`;
-            resultDisplay.innerText = "Spinning...";
+            resultDisplay.innerText = "Consulting...";
 
             setTimeout(() => {
-                // Calculation to find which slice is at the top (0 degrees)
                 const actualDegree = (360 - (randomDegree % 360)) % 360;
                 
                 if (type === 'color') {
-                    // Generates a random valid Hex code
                     const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase();
-                    resultDisplay.innerHTML = `Color: <span style="color:${randomHex}">${randomHex}</span>`;
+                    resultDisplay.innerHTML = `<span style="border-bottom: 1px solid ${randomHex}">${randomHex}</span>`;
                 } else {
-                    // Logic for the 18 Shapes
-                    const sliceSize = 360 / shapesList.length; // 20 degrees per slice
+                    const sliceSize = 360 / shapesList.length;
                     const index = Math.floor(actualDegree / sliceSize);
-                    resultDisplay.innerText = `Result: ${shapesList[index]}`;
+                    resultDisplay.innerText = shapesList[index];
                 }
-            }, 4000); // Matches the 4s transition in CSS
+            }, 5000); // 5 second spin for aesthetic drama
         }
     </script>
 </body>
