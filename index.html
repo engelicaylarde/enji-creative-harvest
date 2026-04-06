@@ -2,215 +2,145 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Enji Creative Roleta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>NG's Daily Task Picker</title>
     <style>
-        :root {
-            --navy: #1d3557;
-            --red: #e63946;
-            --gold: #FFD700;
-            --light: #f0f2f5;
-        }
-
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            display: flex; flex-direction: column; 
-            align-items: center; background: var(--light); color: var(--navy); 
-            padding: 15px; margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Mission Brief: Responsive Height */
-        #mission-brief {
-            background: var(--navy); color: white; padding: 20px; border-radius: 15px; 
-            margin-bottom: 20px; width: 100%; max-width: 600px; text-align: center; 
-            border-bottom: 6px solid var(--gold); box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-        
-        #brief-text { font-size: 1.1rem; margin: 10px 0; line-height: 1.5; }
-        .highlight { color: var(--gold); font-weight: bold; }
-        
-        .color-tag { 
-            display: inline-block; padding: 4px 10px; margin: 4px; border-radius: 4px; 
-            background: #fff; font-size: 0.8rem; font-weight: bold; border: 1px solid #ccc;
-        }
-
-        /* Container: Stacks on mobile, Rows on desktop */
-        .container { 
-            display: flex; flex-direction: column; 
-            gap: 20px; width: 100%; max-width: 1000px; 
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #2c2c2c;
+            color: #ff69b4; 
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        @media (min-width: 768px) {
-            .container { flex-direction: row; align-items: flex-start; }
+        /* The Main Wheel Container */
+        #wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border: 5px solid #ff69b4;
+            border-radius: 50%;
+            overflow: hidden;
+            /* Smooth decelerating spin */
+            transition: transform 3s cubic-bezier(0.1, 0, 0.2, 1);
+            background-color: #444;
         }
 
-        .wheel-box { 
-            text-align: center; background: white; padding: 15px; border-radius: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 320px;
-            box-sizing: border-box;
+        /* The Slices */
+        .wheel-part {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* This creates the 90-degree pie slice shape */
+            clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: 50% 50%;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
         }
 
-        .pointer { 
-            width: 0; height: 0; border-left: 10px solid transparent; 
-            border-right: 10px solid transparent; border-top: 20px solid var(--red); 
-            margin: 0 auto -8px; position: relative; z-index: 10; 
+        /* The Gold Pointer at the top */
+        #pointer {
+            width: 0; 
+            height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid gold;
+            margin-bottom: 10px;
+            z-index: 10;
         }
 
-        canvas { 
-            border-radius: 50%; border: 4px solid #fff; 
-            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); 
-            width: 100% !important; height: auto !important; /* Forces responsiveness */
-            max-width: 280px;
+        button {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #d14d8d;
         }
 
-        /* Mobile-Ready Buttons */
-        button { 
-            margin-top: 12px; padding: 14px 24px; border: none; border-radius: 50px; 
-            background: var(--red); color: white; cursor: pointer; 
-            font-weight: bold; font-size: 1rem; width: 100%; /* Full width on mobile */
-            transition: active 0.1s; -webkit-tap-highlight-color: transparent;
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #d14d8d;
         }
-        
-        button:active { transform: scale(0.96); opacity: 0.8; }
-        button:disabled { background: #ccc; }
 
-        #paletteBtn { background: #2a9d8f; display: none; }
-        #resetBtn { background: #457b9d; width: auto; min-width: 200px; margin-bottom: 40px; }
-        
-        h3 { margin: 10px 0; font-size: 1.1rem; }
-        #palette-hint { font-size: 0.8rem; color: #666; margin: 8px 0; }
+        #result { 
+            margin-top: 20px; 
+            font-size: 1.4rem; 
+            min-height: 1.6rem; 
+            color: gold; 
+        }
+
+        .back-link {
+            margin-top: 40px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
 
-    <div id="mission-brief">
-        <h2 style="font-size: 0.8rem; letter-spacing: 2px; margin: 0;">DAILY MISSION</h2>
-        <p id="brief-text">Spin to start...</p>
+    <h1>Task Roleta</h1>
+    
+    <div id="pointer"></div>
+
+    <div id="wheel-container">
+        <div class="wheel-part" style="transform: rotate(0deg); background: #555;">Walk</div>
+        <div class="wheel-part" style="transform: rotate(90deg); background: #666;">Lifts</div>
+        <div class="wheel-part" style="transform: rotate(180deg); background: #777;">Pixels</div>
+        <div class="wheel-part" style="transform: rotate(270deg); background: #888;">Rest</div>
     </div>
 
-    <div class="container">
-        <div class="wheel-box">
-            <h3>1. Shape</h3>
-            <div class="pointer"></div>
-            <canvas id="shapeWheel" width="300" height="300"></canvas>
-            <button id="shapeBtn" onclick="spinShapeWheel()">SPIN TYPE</button>
-        </div>
+    <button onclick="spin()">SPIN FOR TASK</button>
+    
+    <div id="result"></div>
 
-        <div class="wheel-box">
-            <h3>2. Count</h3>
-            <div class="pointer"></div>
-            <canvas id="countWheel" width="300" height="300"></canvas>
-            <button id="countBtn" onclick="spinCountWheel()">SPIN COUNT</button>
-        </div>
+    <a href="../index.html" class="back-link">← Back to Studio</a>
 
-        <div class="wheel-box">
-            <h3>3. Colors</h3>
-            <div class="pointer"></div>
-            <canvas id="paletteWheel" width="300" height="300"></canvas>
-            <button id="paletteBtn" onclick="spinPaletteWheel()">SPIN FOR COLOR</button>
-            <p id="palette-hint">Spin Count first!</p>
-        </div>
-    </div>
+    <script>
+        function spin() {
+            const wheel = document.getElementById('wheel-container');
+            const resultDisplay = document.getElementById('result');
+            
+            // Generate a random spin: 2-5 full rotations + random angle
+            const randomDegree = Math.floor(Math.random() * 360) + 720; 
+            
+            // Apply the rotation
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+            resultDisplay.innerText = "Selecting...";
+            
+            // Wait for the 3s CSS transition to finish
+            setTimeout(() => {
+                const actualDegree = randomDegree % 360;
+                let task = "";
 
-    <button id="resetBtn" onclick="location.reload()">START OVER</button>
-
-<script>
-    const cssColors = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","RebeccaPurple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
-    const shapeData = {
-        "Basic Geometric": ["Square", "Rectangle", "Circle", "Ellipse", "Triangle", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Nonagon", "Decagon"],
-        "Organic & Fluid": ["Blob", "Teardrop", "Wave", "Spiral"],
-        "Iconic Pinoy": ["Sun (8-rays)", "Diamond (Banig)", "Trapezoid", "Crescent", "Star"],
-        "Tech & Modern": ["Capsule", "Arrow", "Star-burst", "Cross"]
-    };
-    const wordList = ["Harvest", "Sampaguita", "Jeepney", "Salamat", "Grid", "Banig", "Tropical", 
-        "Kintsugi", "Retro", "Sticker", "Loom", "Botanical", "Locket", "Kundiman", 
-        "Vinta", "Neon", "Dragon", "Minimal", "Sunlight", "Palette", "Texture", "Bayanihan",
-        "Flow", "Shell", "Freedom", "Grain", "Vapor", "Launch"];
-
-    let currentPhase = "type", currentCategory = "", finalShape = "---", finalColorCount = 0, selectedPalette = [];
-    let shapeRot = 0, countRot = 0, paletteRot = 0;
-
-    function drawWheel(canvasId, items, colors, isPalette = false) {
-        const canvas = document.getElementById(canvasId), ctx = canvas.getContext('2d'), slice = (2 * Math.PI) / items.length;
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-        items.forEach((item, i) => {
-            const angle = i * slice;
-            ctx.beginPath(); ctx.fillStyle = isPalette ? item : colors[i % colors.length];
-            ctx.moveTo(canvas.width/2, canvas.height/2); ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2, angle, angle + slice); ctx.fill();
-            if (!isPalette) {
-                ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.rotate(angle + slice / 2);
-                ctx.fillStyle = "white"; ctx.font = "bold 12px Arial"; ctx.textAlign = "right";
-                ctx.fillText(item, canvas.width/2 - 10, 5); ctx.restore();
-            }
-        });
-    }
-
-    function updateBrief() {
-        const today = new Date();
-        const dailyWord = wordList[(today.getDate() - 1) % wordList.length];
-        let pText = selectedPalette.map(c => `<span class="color-tag" style="color:${c}">${c}</span>`).join("");
-        document.getElementById('brief-text').innerHTML = `Draw <span class="highlight">${dailyWord}</span> with <span class="highlight">${finalShape}</span> shapes & <span class="highlight">${finalColorCount || '---'}</span> colors:<br>${pText}`;
-    }
-
-    function getWinningIndex(rotation, totalItems) {
-        const normalized = (rotation % 360 + 360) % 360;
-        return Math.floor(((270 - normalized + 360) % 360) / (360 / totalItems));
-    }
-
-    function spinShapeWheel() {
-        const btn = document.getElementById('shapeBtn'), wheel = document.getElementById('shapeWheel');
-        btn.disabled = true; shapeRot += Math.floor(Math.random() * 360) + 1800;
-        wheel.style.transform = `rotate(${shapeRot}deg)`;
-        setTimeout(() => {
-            const items = currentPhase === "type" ? Object.keys(shapeData) : shapeData[currentCategory];
-            const result = items[getWinningIndex(shapeRot, items.length)];
-            if (currentPhase === "type") {
-                currentCategory = result; currentPhase = "specific";
-                setTimeout(() => {
-                    drawWheel("shapeWheel", shapeData[currentCategory], ["#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"]);
-                    wheel.style.transition = "none"; shapeRot = 0; wheel.style.transform = `rotate(0deg)`;
-                    setTimeout(() => { wheel.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)"; btn.innerText = "SPIN SHAPE"; btn.disabled = false; }, 50);
-                }, 1000);
-            } else { finalShape = result; updateBrief(); btn.innerText = "DONE"; }
-        }, 4100);
-    }
-
-    function spinCountWheel() {
-        const btn = document.getElementById('countBtn'), wheel = document.getElementById('countWheel');
-        btn.disabled = true; countRot += Math.floor(Math.random() * 360) + 1440;
-        wheel.style.transform = `rotate(${countRot}deg)`;
-        setTimeout(() => {
-            const items = ["1", "2", "3", "4", "5"];
-            finalColorCount = parseInt(items[getWinningIndex(countRot, 5)]);
-            updateBrief();
-            document.getElementById('paletteBtn').style.display = "block";
-            document.getElementById('palette-hint').innerText = `Spin for ${finalColorCount} colors!`;
-            btn.innerText = "DONE";
-        }, 4100);
-    }
-
-    function spinPaletteWheel() {
-        if (selectedPalette.length >= finalColorCount) return;
-        const btn = document.getElementById('paletteBtn'), wheel = document.getElementById('paletteWheel');
-        btn.disabled = true; paletteRot += Math.floor(Math.random() * 360) + 1000;
-        wheel.style.transform = `rotate(${paletteRot}deg)`;
-        setTimeout(() => {
-            selectedPalette.push(cssColors[getWinningIndex(paletteRot, cssColors.length)]);
-            updateBrief();
-            if (selectedPalette.length < finalColorCount) {
-                btn.disabled = false;
-                document.getElementById('palette-hint').innerText = `${selectedPalette.length}/${finalColorCount} picked.`;
-            } else { btn.innerText = "COMPLETE"; }
-        }, 4100);
-    }
-
-    drawWheel("shapeWheel", Object.keys(shapeData), ["#e63946", "#457b9d", "#1d3557", "#f4a261"]);
-    drawWheel("countWheel", ["1", "2", "3", "4", "5"], ["#6d597a", "#b56576", "#e56b6f", "#eaac8b", "#355070"]);
-    drawWheel("paletteWheel", cssColors, [], true);
-    updateBrief();
-</script>
+                /* Logic mapping (based on the CSS rotation of slices):
+                   0-90 = Rest (because the wheel spins clockwise)
+                   90-180 = Pixels
+                   180-270 = Lifts
+                   270-360 = Walk
+                */
+                if (actualDegree >= 0 && actualDegree < 90) task = "Rest";
+                else if (actualDegree >= 90 && actualDegree < 180) task = "Pixels";
+                else if (actualDegree >= 180 && actualDegree < 270) task = "Lifts";
+                else task = "Walk";
+                
+                resultDisplay.innerText = "Today's Focus: " + task;
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
